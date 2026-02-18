@@ -1,0 +1,26 @@
+[
+    {
+        "subject": "Wadl",
+        "title": "Assign1",
+        "deadline": "2026-02-20",
+        "created_at": "2026-02-11T05:04:25+01:00"
+    },
+    {
+        "subject": "Wadl",
+        "title": "Assign2",
+        "deadline": "2026-02-20",
+        "created_at": "2026-02-11T05:04:51+01:00"
+    },
+    {
+        "subject": "Wad",
+        "title": "Assign1",
+        "deadline": "2026-02-20",
+        "created_at": "2026-02-11T05:46:47+01:00"
+    },
+    {
+        "subject": "Wadl",
+        "title": "Make a static website using html and css",
+        "deadline": "2026-02-20",
+        "created_at": "2026-02-11T05:52:14+01:00"
+    }
+]
