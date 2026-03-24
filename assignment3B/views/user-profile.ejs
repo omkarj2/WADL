@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Database | User Details</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    header { padding: 20px 40px; border-bottom: 1px solid #eee; }
+    header h1 { margin: 0; font-size: 32px; }
+    header p { margin: 4px 0 0; color: #666; }
+    nav { position: absolute; right: 40px; top: 26px; }
+    nav a { margin-left: 20px; text-decoration: none; color: #444; font-weight: bold; }
+    main { padding: 40px; }
+    h2 { margin-top: 0; }
+    .btn { margin-right: 10px; padding: 6px 16px; border: none; cursor: pointer; }
+    .btn-remove { background: #e53935; color: #fff; }
+    .btn-update { background: #1976d2; color: #fff; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MONGODB</h1>
+    <p>THIS SITE IS BASED ON DATABASE HANDLING CRUD OPERATIONS</p>
+    <nav>
+      <a href="/users">HOME</a>
+      <a href="/user/create">ADD-USER</a>
+    </nav>
+  </header>
+  <main>
+    <h2>Profile: <%= user.username %></h2>
+    <p>Email: <%= user.email %></p>
+    <p>Password: <%= user.password %></p>
+    <p>Address: <%= user.address %></p>
+    <p>Number: <%= user.number %></p>
+
+    <form method="post" action="/users/<%= user._id %>/delete" style="display:inline;">
+      <button type="submit" class="btn btn-remove">Remove</button>
+    </form>
+    <a href="/users/<%= user._id %>/edit">
+      <button type="button" class="btn btn-update">Update</button>
+    </a>
+  </main>
+</body>
+</html>

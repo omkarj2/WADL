@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Database | Edit User</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    header { padding: 20px 40px; border-bottom: 1px solid #eee; }
+    header h1 { margin: 0; font-size: 32px; }
+    header p { margin: 4px 0 0; color: #666; }
+    nav { position: absolute; right: 40px; top: 26px; }
+    nav a { margin-left: 20px; text-decoration: none; color: #444; font-weight: bold; }
+    main { padding: 40px; }
+    label { display: block; margin-top: 10px; }
+    input { width: 300px; padding: 6px; margin-top: 4px; }
+    button { margin-top: 20px; padding: 6px 16px; background: #1976d2; color: #fff; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MONGODB</h1>
+    <p>THIS SITE IS BASED ON DATABASE HANDLING CRUD OPERATIONS</p>
+    <nav>
+      <a href="/users">HOME</a>
+      <a href="/user/create">ADD-USER</a>
+    </nav>
+  </header>
+  <main>
+    <h2>Edit-Profile</h2>
+    <form method="post" action="/users/<%= user._id %>/edit">
+      <label>UserName:
+        <input type="text" name="username" value="<%= user.username %>" required />
+      </label>
+      <label>Email:
+        <input type="email" name="email" value="<%= user.email %>" required />
+      </label>
+      <label>password:
+        <input type="password" name="password" value="<%= user.password %>" required />
+      </label>
+      <label>Address:
+        <input type="text" name="address" value="<%= user.address %>" required />
+      </label>
+      <label>Number:
+        <input type="text" name="number" value="<%= user.number %>" required />
+      </label>
+      <button type="submit">Update</button>
+    </form>
+  </main>
+</body>
+</html>

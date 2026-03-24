@@ -1,0 +1,13 @@
+<div class="page">
+	<h2>Profile</h2>
+
+	<div *ngIf="user; else notLoggedIn">
+		<p><strong>Username:</strong> {{ user?.username }}</p>
+		<button (click)="logout()">Logout</button>
+	</div>
+
+	<ng-template #notLoggedIn>
+		<p>Not logged in.</p>
+		<a routerLink="/">Go to Login</a>
+	</ng-template>
+</div>

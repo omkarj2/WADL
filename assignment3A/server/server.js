@@ -1,45 +1,134 @@
-let http = require('http');
+// Simple static file server using only core Node.js modules
+// Serves files from the current directory and prevents directory traversal
 
-http.createServer(function (req,res){
+const http = require('http');
+const fs = require('fs');
+const url = require('url');
+const path = require('path');
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+// Root directory for serving files (current working directory)
+const ROOT_DIR = process.cwd();
 
-    if( req.method === 'OPTIONS' ){
-        res.writeHead(200);
-        res.end();
-        return;
-    }
-    
-    if( req.method === 'POST' && req.url === '/login' ){
-        let data = '';
+// Basic MIME type mapping
+const MIME_TYPES = {
+    '.html': 'text/html',
+    '.css': 'text/css',
+    '.js': 'text/javascript',
+    '.json': 'application/json',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.pdf': 'application/pdf'
+};
 
-        req.on('data' , chunk => {
-            data += chunk.toString();
+// Helper to send an error response
+function sendError(res, code, message) {
+    res.writeHead(code, { 'Content-Type': 'text/plain' });
+    res.end(message);
+}
+
+// Helper to render the directory listing at "/"
+function renderDirectoryListing(res) {
+    fs.readdir(ROOT_DIR, function (err, files) {
+        if (err) {
+            sendError(res, 500, '500 Server Error');
+            return;
+        }
+
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>File Listing</title></head><body>');
+        res.write('<h1>Files in current directory</h1>');
+        res.write('<ul>');
+
+        files.forEach(function (file) {
+            // Generate links like /file?name=filename
+            const href = '/file?name=' + encodeURIComponent(file);
+            res.write('<li><a href="' + href + '">' + file + '</a></li>');
         });
 
-        req.on('end', () => {
-            console.log('Raw data :' , data);
+        res.write('</ul>');
+        res.write('</body></html>');
+        res.end();
+    });
+}
 
-            const structured = JSON.parse(data);
+// Helper to serve a single file
+function serveFile(res, requestedPath) {
+    // Normalize the path to remove .. and . segments
+    const normalizedPath = path.normalize(requestedPath);
 
-            console.log('username' , structured.username);
-            console.log('password' , structured.password);
+    // Build an absolute path under ROOT_DIR
+    const absolutePath = path.join(ROOT_DIR, normalizedPath);
 
-            res.writeHead(200, {'Content-Type' : 'text/plain'});
-            res.end('Login received');
-        })
-
-
+    // Prevent directory traversal by ensuring the resolved path starts with ROOT_DIR
+    if (!absolutePath.startsWith(ROOT_DIR)) {
+        sendError(res, 403, '403 Forbidden');
         return;
     }
 
-    res.writeHead(200, {'Content-Type' : 'text/plain'});
-    res.end('Hello world');
+    fs.stat(absolutePath, function (err, stats) {
+        if (err) {
+            if (err.code === 'ENOENT') {
+                sendError(res, 404, '404 Not Found');
+            } else {
+                sendError(res, 500, '500 Server Error');
+            }
+            return;
+        }
 
+        if (!stats.isFile()) {
+            sendError(res, 404, '404 Not Found');
+            return;
+        }
 
-}).listen(3000 , ()=>{
-    console.log('Server running on port 3000');
+        const ext = path.extname(absolutePath).toLowerCase();
+        const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+
+        const stream = fs.createReadStream(absolutePath);
+
+        stream.on('open', function () {
+            res.writeHead(200, { 'Content-Type': contentType });
+            stream.pipe(res);
+        });
+
+        stream.on('error', function () {
+            sendError(res, 500, '500 Server Error');
+        });
+    });
+}
+
+const server = http.createServer(function (req, res) {
+    try {
+        const parsedUrl = url.parse(req.url, true);
+
+        // Root path: list all files in current directory
+        if (parsedUrl.pathname === '/' || parsedUrl.pathname === '') {
+            renderDirectoryListing(res);
+            return;
+        }
+
+        // /file?name=FILENAME - serve that file
+        if (parsedUrl.pathname === '/file') {
+            const fileName = parsedUrl.query.name;
+
+            if (!fileName) {
+                sendError(res, 400, '400 Bad Request');
+                return;
+            }
+
+            // Only allow files directly in ROOT_DIR
+            serveFile(res, fileName);
+            return;
+        }
+
+        // Any other path: 404
+        sendError(res, 404, '404 Not Found');
+    } catch (e) {
+        sendError(res, 500, '500 Server Error');
+    }
+});
+
+server.listen(1800, function () {
+    console.log('Static file server running at http://localhost:1800');
 });
 
